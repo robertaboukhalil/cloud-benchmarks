@@ -14,22 +14,31 @@
 # General
 JQ=jq
 JQ_NULL="null"
-NC=nc
-DIR_SETTINGS=config.json
+DIR_SETTINGS="${1?Usage: ./run.sh ./path/to/config.json}"
 
 
 # ------------------------------------------------------------------------------
 # Utility functions
 # ------------------------------------------------------------------------------
 
-# Install dependencies
+# Check for and install dependencies
 function init()
 {
     jq --version > /dev/null 2>&1
-    [[ "$?" != "0" ]] && echo "Installing jq..." && sudo apt-get install -y jq
+    if [[ "$?" != "0" ]]; then
+        read -p "This tool needs the <jq> utility. Install it now? (y/n) " yesno
+        [[ "$yesno" != "y" ]] && exit;
+        echo "Installing jq..."
+        sudo apt-get install jq
+    fi
 
     uuidgen > /dev/null 2>&1
-    [[ "$?" != "0" ]] && echo "Installing uuidgen..." && sudo apt-get install -y uuid-runtime
+    if [[ "$?" != "0" ]]; then
+        read -p "This tool needs the <uuidgen> utility. Install it now? (y/n) " yesno
+        [[ "$yesno" != "y" ]] && exit;
+        echo "Installing uuidgen..."
+        sudo apt-get install uuid-runtime
+    fi
 }
 
 # Find out which environment we're in
@@ -171,9 +180,6 @@ do
 
         sleep 600  # run once every 10 mins
 
-    # break;
     done
-
-    # break;
 
 done
