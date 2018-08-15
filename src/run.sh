@@ -76,13 +76,14 @@ function json()
 # ------------------------------------------------------------------------------
 if [[ "$(getEnv)" != "gcp" ]]; then
     echo "Error: Currently only supports Google Cloud environment.";
+    exit;
 fi
 
 
 # ------------------------------------------------------------------------------
 # Benchmark
 # ------------------------------------------------------------------------------
-N=5
+N=$(json '.N')
 nbTests=$(json '.tests | length')
 
 # Install dependencies
@@ -99,8 +100,6 @@ tScopes=$(json '.'$CLOUD'.scopes')
 # Loop through tests
 for((i = 0; i < nbTests; i++));
 do
-    # TODO: get N from JSON
-
     for((j = 0; j < N; j++));
     do
         # Fetch JSON info for current test
@@ -179,7 +178,5 @@ do
         echo -e "\t"$((time_end - time_start))
 
         sleep 600  # run once every 10 mins
-
     done
-
 done

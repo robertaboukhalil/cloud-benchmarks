@@ -1,4 +1,5 @@
 {
+  "N": 5,
   "gcp": {
     "image": "debian-9",
     "zone": "us-west1-b",
