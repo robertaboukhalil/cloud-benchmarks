@@ -13,6 +13,7 @@ Modify the `config.json` file with your own configuration parameters, e.g.
   "N": 5,
   "gcp": {
     "image": "debian-9",
+    "image_project": "debian-cloud",
     "zone": "us-west1-b",
     "machines": [
       { "type": "n1-standard-1" },

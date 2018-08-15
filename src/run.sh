@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
 # ==============================================================================
 # Launch benchmarks for VM boot times
 # Currently only supports GCP
@@ -66,9 +64,9 @@ function json()
 
     # Run jq on file or directly on a JSON string
     if [[ "$jsonStr" == "" ]]; then
-        $JQ "$flags" "$expression" "$DIR_SETTINGS"
+        $JQ $flags "$expression" "$DIR_SETTINGS"
     else
-        $JQ "$flags" "$expression" <<< "$jsonStr"
+        $JQ $flags "$expression" <<< "$jsonStr"
     fi
 }
 
@@ -94,6 +92,7 @@ init
 # General settings
 CLOUD=$(getEnv)
 tImage=$(json '.'$CLOUD'.image')
+tImageProject=$(json '.'$CLOUD'.image_project')
 tZone=$(json '.'$CLOUD'.zone')
 tMachines=$(json '.'$CLOUD'.machines')
 tSSHKey=$(json '.'$CLOUD'.ssh_key')
@@ -143,10 +142,11 @@ do
                 --boot-disk-size "${tDiskSize}" \
                 --boot-disk-type "pd-ssd" \
                 --image-family "$tImage" \
-                "${machineType}" \
+                --image-project "$tImageProject" \
+                ${machineType} \
                 --zone "${tZone}" \
                 --scopes "${tScopes}" \
-                --metadata-from-file startup-script=startup_gcp.sh # >/dev/null 2>&1
+                --metadata-from-file startup-script=startup_gcp.sh >/dev/null 2>&1
 
         # TODO: Running AWS test
         elif [[ "$CLOUD" == "aws" ]];
