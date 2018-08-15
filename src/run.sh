@@ -98,6 +98,11 @@ tMachines=$(json '.'$CLOUD'.machines')
 tSSHKey=$(json '.'$CLOUD'.ssh_key')
 tScopes=$(json '.'$CLOUD'.scopes')
 
+if [[ ! -f $tSSHKey ]]; then
+    echo "Error: Could not find SSH key at <$tSSHKey>"
+    exit
+fi
+
 # Loop through tests
 for((i = 0; i < nbTests; i++));
 do
