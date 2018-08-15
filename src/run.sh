@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# set -euo pipefail
+set -euo pipefail
 
 # ==============================================================================
 # Launch benchmarks for VM boot times
@@ -24,18 +24,20 @@ DIR_SETTINGS="${1?Usage: ./run.sh ./path/to/config.json}"
 # Check for and install dependencies
 function init()
 {
+    # Install jq for parsing JSON
     jq --version > /dev/null 2>&1
     if [[ "$?" != "0" ]]; then
-        read -p "This tool needs the <jq> utility. Install it now? (y/n) " yesno
-        [[ "$yesno" != "y" ]] && exit;
+        read -rp "This tool needs the <jq> utility. Install it now? (y/n) " yesno
+        [[ "$yesno" != "y" ]] && exit
         echo "Installing jq..."
         sudo apt-get install jq
     fi
 
+    # Install uuidgen to generate UUIDs as VM names
     uuidgen > /dev/null 2>&1
     if [[ "$?" != "0" ]]; then
-        read -p "This tool needs the <uuidgen> utility. Install it now? (y/n) " yesno
-        [[ "$yesno" != "y" ]] && exit;
+        read -rp "This tool needs the <uuidgen> utility. Install it now? (y/n) " yesno
+        [[ "$yesno" != "y" ]] && exit
         echo "Installing uuidgen..."
         sudo apt-get install uuid-runtime
     fi
@@ -46,11 +48,11 @@ function getEnv()
 {
     ping -c 1 metadata.google.internal >/dev/null 2>/dev/null
     if [[ "$?" == "0" ]]; then
-        echo "gcp";
+        echo "gcp"
     elif [[ "$(head -c 3 /sys/hypervisor/uuid 2>/dev/null)" == "ec2" ]]; then
-        echo "aws";
+        echo "aws"
     else
-        echo "";
+        echo ""
     fi
 }
 
@@ -64,9 +66,9 @@ function json()
 
     # Run jq on file or directly on a JSON string
     if [[ "$jsonStr" == "" ]]; then
-        $JQ $flags "$expression" $DIR_SETTINGS
+        $JQ "$flags" "$expression" "$DIR_SETTINGS"
     else
-        $JQ $flags "$expression" <<< "$jsonStr"
+        $JQ "$flags" "$expression" <<< "$jsonStr"
     fi
 }
 
@@ -75,8 +77,8 @@ function json()
 # Currently only support GCP
 # ------------------------------------------------------------------------------
 if [[ "$(getEnv)" != "gcp" ]]; then
-    echo "Error: Currently only supports Google Cloud environment.";
-    exit;
+    echo "Error: Currently only supports Google Cloud environment."
+    exit
 fi
 
 
@@ -140,7 +142,8 @@ do
                 --boot-disk-device-name "${tName}" \
                 --boot-disk-size "${tDiskSize}" \
                 --boot-disk-type "pd-ssd" \
-                ${machineType} \
+                --image-family "$tImage" \
+                "${machineType}" \
                 --zone "${tZone}" \
                 --scopes "${tScopes}" \
                 --metadata-from-file startup-script=startup_gcp.sh # >/dev/null 2>&1
@@ -163,10 +166,10 @@ do
         IP=${tName}
 
         # Keep trying to SSH until can get in
-        while [[ true ]];
+        while true;
         do
             echo -ne "."
-            ssh -i ${tSSHKey} "$IP" \
+            ssh -i "${tSSHKey}" "$IP" \
                 -o StrictHostKeyChecking=no \
                 -o ConnectTimeout=1 \
                 'echo -n " done"' 2>/dev/null
