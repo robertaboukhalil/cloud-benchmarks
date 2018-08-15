@@ -2,6 +2,8 @@
 
 ### Step 1: Clone repo
 
+Create a small VM in Google Cloud, SSH into it, and clone the repo:
+
 ```bash
 git clone https://github.com/robertaboukhalil/cloud-benchmarks.git
 cd cloud-benchmarks/src/
